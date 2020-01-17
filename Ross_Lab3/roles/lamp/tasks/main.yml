@@ -18,8 +18,8 @@
   yum: update_cache=yes
   become: yes 
   
-# - name: Start httpd
-#  service: name=httpd state=started enabled=yes
+ - name: Start httpd
+  service: name=httpd state=started enabled=yes
 
 - name: Start mysql
   service: name=mariadb state=started enabled=yes
