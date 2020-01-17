@@ -44,6 +44,6 @@
     - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{wp_mysql_password}}' );"}
 
     
-#- name: restart apache
-#  service: name=httpd state=restarted
-#  become: yes
+- name: restart apache
+  service: name=httpd state=restarted
+  become: yes
