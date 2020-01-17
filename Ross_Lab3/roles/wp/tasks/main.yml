@@ -1,0 +1,49 @@
+---
+
+- name: Create DB User
+  mysql_user:
+    login_user: root
+    login_password:
+    name: "{{ wp_mysql_password }}"
+    password: "{{ wp_mysql_password }}"
+    priv: '*.*:ALL,GRANT'
+    state: present
+
+- name: create MariaDB DB
+  mysql_db:
+    name: "{{ wp_mysql_db }}"
+    state: present
+
+- name: Create directory to download WordPress
+  command: mkdir -p /opt/source/wordpress
+
+- name: Download WordPress
+  get_url: url=https://www.wordpress.org/latest.tar.gz dest=/opt/source/wordpress/wordpress.tar.gz validate_certs=no
+
+- name: Extract WordPress
+  command: "tar xzf /opt/source/wordpress/wordpress.tar.gz -C /var/www/html --strip-components 1"
+
+- name: Update default Apache site
+  lineinfile:
+    dest: /etc/httpd/conf/httpd.conf
+    regexp: "(.)+DocumentRoot /var/www/html"
+    line: "DocumentRoot /var/www/html"
+
+- name: Copy sample config file
+  command: mv /var/www/html/wp-config-sample.php /var/www/html/wp-config.php creates=/var/www/html/wp-config.php
+  become: yes
+
+- name: Updating the Wordpress config file
+  lineinfile:
+    path: /var/www/html/wp-config.php
+    regexp: "{{item.regexp}}"
+    line: "{{item.line}}"
+  with_items:
+    - {'regexp': "define\\( 'DB_NAME', '(.)+' \\);", 'line': "define( 'DB_NAME', '{{wp_mysql_db}}' );"}
+    - {'regexp': "define\\( 'DB_USER', '(.)+' \\);", 'line': "define( 'DB_USER', '{{wp_mysql_user}}' );"}
+    - {'regexp': "define\\( 'DB_PASSWORD', '(.)+' \\);", 'line': "define( 'DB_PASSWORD', '{{wp_mysql_password}}' );"}
+
+    
+#- name: restart apache
+#  service: name=httpd state=restarted
+#  become: yes

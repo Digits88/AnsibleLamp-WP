@@ -1,0 +1,9 @@
+- hosts: testgroup
+  vars:
+    wp_install_dir: '/var/www/html/'
+    wp_mysql_db: 'wordpress'
+    wp_mysql_user: 'user'
+    wp_mysql_password: 'Fullsail1!'
+  roles:
+   - lamp
+   - wp

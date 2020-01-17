@@ -1,0 +1,36 @@
+---
+- name: Install Lamp Stack
+  yum: name={{ item }} state=present update_cache=yes
+  with_items:
+   - httpd
+   - mariadb-server
+   - php
+   - php-mysql
+   - php-gd
+   - php-cli
+   - php-curl
+   - MySQL-python
+
+- name: Enable the Remi PHP 7.3 Repository
+  shell: yum-config-manager --enable remi-php73
+
+- name: Update cache
+  yum: update_cache=yes
+  become: yes 
+  
+# - name: Start httpd
+#  service: name=httpd state=started enabled=yes
+
+- name: Start mysql
+  service: name=mariadb state=started enabled=yes
+
+- name: restart firewall
+  service:
+    name: firewalld
+    state: restarted
+
+- name: Open port 80
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
